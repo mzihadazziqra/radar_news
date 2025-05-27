@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\News;
 use App\Services\MediaStackService;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class HomeController extends Controller
 {
@@ -16,7 +16,7 @@ class HomeController extends Controller
      */
     public function index(MediaStackService $mediaStackService) {
         $mediStackOptions = [
-            'limit' => 5,
+            'limit' => 6,
             'languages' => 'en',
         ];
 
@@ -24,20 +24,27 @@ class HomeController extends Controller
 
         $externalHeadlines = [];
         if (isset($externalHeadlineResult['error'])) {
-
+            Log::error('MediaStack Error on Homepage: ' . $externalHeadlineResult['error'], ['response' => $externalHeadlineResult]);
         } else {
             $externalHeadlines = $externalHeadlineResult;
         }
 
-        $localNews = News::with('user', 'category')
+        $localNewsPaginated = News::with('user', 'category')
                             ->whereNotNull('published_at')
                             ->latest('published_at')
-                            ->take(6)
+                            ->paginate(6);
+
+
+        $heroSlides = News::with('user', 'category')
+                            ->whereNotNull('published_at')
+                            ->latest('published_at')
+                            ->take(3)
                             ->get();
 
         return view('welcome', [
             'externalHeadlines' => $externalHeadlines,
-            'localNews' => $localNews,
+            'localNewsPaginated' => $localNewsPaginated,
+            'heroSlides' => $heroSlides,
         ]);
 
     }

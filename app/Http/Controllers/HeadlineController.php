@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\MediaStackService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class HeadlineController extends Controller
 {
@@ -15,20 +16,30 @@ class HeadlineController extends Controller
     }
 
     // Menampilkan daftar berita utama dari MediaStack
-    public function index() {
+    public function index()
+    {
         $options = [
-            'limit' => 10,
-            // 'languages' => 'id',
+            'limit' => 12,
+            'languages' => 'en',
             // 'countries' => 'id',
         ];
-        $headLines = $this->mediaStackService->getLatestNews($options);
+        $apiResult = $this->mediaStackService->getLatestNews($options);
 
-        if (isset($headLines['error'])) {
-            $articles = [];
+        $articles = [];
+        $apiError = null;
+
+        if (isset($apiResult['error'])) {
+            $apiError = 'Gagal mengambil berita internasional' . $apiResult['error'];
+            if (isset($apiResult['status'])) {
+                $apiError .= ' (Status: ' . $apiResult['status'] . ' )';
+            }
+            Log::error('MediaStack Error di Headlilne Page: ' . $apiError, ['response' => $apiResult]);
+        } else if (empty($apiResult)) {
+            $apiError = 'Tidak ada berita internasional yang ditemuka saat ini';
         } else {
-            $articles = $headLines;
+            $articles = $apiResult;
         }
 
-        return view('headlines.index', ['articles' => $articles]);
+        return view('headlines.index', compact('articles', 'apiError'));
     }
 }

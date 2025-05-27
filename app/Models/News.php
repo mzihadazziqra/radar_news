@@ -25,11 +25,11 @@ class News extends Model
         'published_at' => 'datetime',
     ];
 
-    public function user() : BelongsTo {
+    public function user(): BelongsTo {
         return $this->belongsTo(User::class);
     }
 
-    public function category() : BelongsTo {
+    public function category(): BelongsTo {
         return $this->belongsTo(Category::class);
     }
 }

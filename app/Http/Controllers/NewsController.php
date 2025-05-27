@@ -17,9 +17,34 @@ class NewsController extends Controller
      */
     public function index()
     {
-        $allNews = News::with('user', 'category')->whereNotNull('published_at')->latest('published_at')->paginate(10);
+        // $allNews = News::with('user', 'category')->whereNotNull('published_at')->latest('published_at')->paginate(9);
 
-        return view('news.index', compact('allNews'));
+        // return view('news.index', compact('allNews'));
+
+        $latestNewsForHero = News::with('user', 'category')
+            ->whereNotNull('published_at')
+            ->whereNotNull('image_path')
+            ->latest('published_at')
+            ->take(4)
+            ->get();
+
+        $heroMainNews = null;
+        $heroSideNews = collect();
+
+        if ($latestNewsForHero->count() > 0) {
+            $heroMainNews = $latestNewsForHero->first();
+            $heroSideNews = $latestNewsForHero->slice(1);
+        }
+
+        $featuredIds = $latestNewsForHero->pluck('id')->toArray();
+
+        $allNews = News::with('user', 'category')
+            ->whereNotNull('published_at')
+            ->whereNotIn('id', $featuredIds)
+            ->latest('published_at')
+            ->paginate(6);
+
+        return view('news.index', compact('allNews', 'heroMainNews', 'heroSideNews'));
     }
 
     /**

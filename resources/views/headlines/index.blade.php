@@ -1,90 +1,87 @@
 {{-- File: resources/views/headlines/index.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Berita Terkini dari MediaStack') }}
-        </h2>
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                {{ __('Berita Internasional') }}
+            </h2>
+            {{-- Tidak ada tombol "+ Tambah Berita Baru" di sini --}}
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            {{-- Tampilkan pesan error jika ada --}}
-            {{-- @if (session('mediastack_error'))
-                <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                    <strong class="font-bold">Error!</strong>
-                    <span class="block sm:inline">{{ session('mediastack_error') }}</span>
+    <div class="py-8"> {{-- Padding vertikal konsisten --}}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"> {{-- Padding horizontal konsisten --}}
+
+            @if ($apiError)
+                <div class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded-lg relative mb-6"
+                    role="alert">
+                    <strong class="font-bold">Oops!</strong>
+                    <span class="block sm:inline">{{ $apiError }}</span>
                 </div>
-            @endif --}}
+            @endif
 
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-                    @if (!empty($articles) && !isset($articles['error']))
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            @foreach ($articles as $article)
-                                <div class="bg-gray-50 dark:bg-gray-700 rounded-lg shadow p-4 flex flex-col">
-                                    {{-- Gambar Berita (jika tersedia di API) --}}
-                                    @if (!empty($article['image']))
-                                        <img src="{{ $article['image'] }}" alt="{{ $article['title'] ?? 'Gambar Berita' }}"
-                                             class="w-full h-48 object-cover rounded-md mb-4"
-                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"> {{-- Sembunyikan jika gambar error --}}
-                                        <div class="w-full h-48 bg-gray-200 dark:bg-gray-600 rounded-md mb-4 items-center justify-center" style="display: none;">
-                                            <span class="text-gray-400 dark:text-gray-500">Gambar tidak tersedia</span>
-                                        </div>
-                                    @else
-                                        <div class="w-full h-48 bg-gray-200 dark:bg-gray-600 rounded-md mb-4 flex items-center justify-center">
-                                            <span class="text-gray-400 dark:text-gray-500">Gambar tidak tersedia</span>
-                                        </div>
-                                    @endif
-
-                                    {{-- Judul Berita --}}
-                                    <h3 class="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
-                                        <a href="{{ $article['url'] ?? '#' }}" target="_blank" rel="noopener noreferrer" class="hover:underline">
-                                            {{ $article['title'] ?? 'Judul Tidak Tersedia' }}
-                                        </a>
-                                    </h3>
-
-                                    {{-- Sumber dan Penulis --}}
-                                    <div class="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                                        <span>Sumber: {{ $article['source'] ?? 'N/A' }}</span>
-                                        @if (!empty($article['author']))
-                                            | <span>Penulis: {{ $article['author'] }}</span>
-                                        @endif
+            @if (!empty($articles) && count($articles) > 0)
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    @foreach ($articles as $article)
+                        <div
+                            class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden flex flex-col transition-shadow duration-300 hover:shadow-xl dark:border dark:border-gray-700">
+                            <a href="{{ $article['url'] ?? '#' }}" target="_blank" rel="noopener noreferrer">
+                                @if (!empty($article['image']))
+                                    <img src="{{ $article['image'] }}"
+                                        alt="{{ $article['title'] ?? 'Gambar Berita Internasional' }}"
+                                        class="w-full h-48 object-cover" {{-- Tinggi gambar disamakan dengan kartu lain --}}
+                                        onerror="this.onerror=null; this.src='{{ asset('images/placeholder-news.png') }}';">
+                                    {{-- Fallback jika gambar API error --}}
+                                @else
+                                    <div
+                                        class="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                                        <svg class="w-12 h-12 text-gray-400 dark:text-gray-500" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                            </path>
+                                        </svg>
                                     </div>
-
-                                    {{-- Tanggal Publikasi --}}
-                                    <div class="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                                        @if (!empty($article['published_at']))
-                                            Dipublikasikan pada: {{ \Carbon\Carbon::parse($article['published_at'])->translatedFormat('d M Y, H:i') }}
-                                        @else
-                                            Tanggal tidak tersedia
-                                        @endif
-                                    </div>
-
-                                    {{-- Deskripsi Singkat --}}
-                                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 flex-grow">
-                                        {{ Str::limit($article['description'] ?? '', 150) }}
-                                    </p>
-
-                                    {{-- Tombol Baca Selengkapnya (mengarahkan ke sumber asli) --}}
+                                @endif
+                            </a>
+                            <div class="p-4 sm:p-5 flex flex-col flex-grow">
+                                <h3 class="text-lg font-semibold mb-2 text-gray-900 dark:text-white leading-tight">
                                     <a href="{{ $article['url'] ?? '#' }}" target="_blank" rel="noopener noreferrer"
-                                       class="mt-auto self-start text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-200 font-semibold text-sm">
-                                        Baca Selengkapnya di Sumber Asli &rarr;
+                                        class="hover:text-primary dark:hover:text-primary-light transition-colors">
+                                        {{ Str::limit($article['title'] ?? 'Judul Tidak Tersedia', 60) }}
                                     </a>
+                                </h3>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                                    <span class="font-medium">{{ $article['source'] ?? 'Tidak Diketahui' }}</span>
+                                    @if (!empty($article['published_at']))
+                                        <span class="mx-1">&bull;</span>
+                                        <span>{{ \Carbon\Carbon::parse($article['published_at'])->diffForHumans() }}</span>
+                                    @endif
                                 </div>
-                            @endforeach
+                                <p class="text-sm text-gray-700 dark:text-gray-300 mb-4 flex-grow">
+                                    {{ Str::limit($article['description'] ?? '', 100) }}
+                                </p>
+                                <a href="{{ $article['url'] ?? '#' }}" target="_blank" rel="noopener noreferrer"
+                                    class="text-sm font-semibold text-primary hover:underline mt-auto self-start">
+                                    Baca di Sumber Asli &rarr;
+                                </a>
+                            </div>
                         </div>
-                    @elseif (isset($articles['error']))
-                         <p class="text-center text-red-500 dark:text-red-400">
-                            Gagal memuat berita: {{ $articles['error'] }}
-                            @if(isset($articles['status'])) (Status: {{ $articles['status'] }}) @endif
-                        </p>
-                    @else
-                        <p class="text-center text-gray-500 dark:text-gray-400">
-                            Tidak ada berita terkini yang dapat ditampilkan saat ini.
-                        </p>
-                    @endif
+                    @endforeach
                 </div>
-            </div>
+                {{-- Karena kita mengambil jumlah tetap (limit 12) dari API dan API MediaStack (free) tidak mudah dipaginasi --}}
+                {{-- dengan cara Laravel, kita tidak tampilkan Paginator::links() di sini untuk sementara. --}}
+                {{-- Jika ingin ada tombol "Load More" atau paginasi manual, itu perlu implementasi berbeda. --}}
+            @elseif (!$apiError)
+                {{-- Jika tidak ada error tapi juga tidak ada artikel --}}
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center">
+                    <p class="text-gray-500 dark:text-gray-400">
+                        Tidak ada berita internasional untuk ditampilkan saat ini.
+                    </p>
+                </div>
+            @endif
+            {{-- Jika $apiError ada, pesan error sudah ditampilkan di atas --}}
         </div>
     </div>
 </x-app-layout>

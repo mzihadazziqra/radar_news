@@ -6,10 +6,32 @@
     .btn {
         @apply py-3 px-6 rounded-lg font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 ease-in-out duration-150;
     }
+
     .btn-primary {
         @apply btn bg-primary text-white hover:bg-primary-dark focus:ring-primary;
     }
+
     .btn-secondary {
         @apply btn bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-400;
+    }
+
+    .trix-content {
+        /* Styling untuk area konten di Trix Editor */
+        @apply bg-gray-50 dark:bg-gray-700 dark:text-white min-h-[250px] p-2 rounded-b-lg;
+        /* min-h-[250px] memberi tinggi minimal, sesuaikan jika perlu */
+        /* p-2 untuk padding internal area ketik */
+    }
+
+    trix-toolbar .trix-button-group {
+        @apply bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 border-b-0 rounded-t-lg;
+    }
+
+    trix-toolbar .trix-button {
+        @apply text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700;
+    }
+
+    trix-toolbar .trix-button.trix-active {
+        @apply bg-gray-200 dark:bg-gray-900;
+        /* atau bg-primary text-white jika ingin lebih menonjol */
     }
 }

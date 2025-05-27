@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HeadlineController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewsController;
@@ -28,8 +29,8 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/news/{news:slug}', [NewsController::class, 'show'])->name('news.show');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 require __DIR__ . '/auth.php';
