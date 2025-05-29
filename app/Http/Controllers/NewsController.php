@@ -69,7 +69,15 @@ class NewsController extends Controller
             $imagePath = $request->file('image')->store('news_images', 'public');
         }
 
-        $slug = Str::slug($validatedData['title'], '-' . uniqid());
+        $titleForSlug = $validatedData['title'];
+
+        $baseSlug = Str::slug($titleForSlug, '-');
+
+        $maxBaseSlugLength = 230;
+
+        $limitedBaseSlug = Str::limit($baseSlug, $maxBaseSlugLength, '');
+
+        $slug = $limitedBaseSlug . '-' . uniqid();
 
         $dataToSave = [
             'user_id' => Auth::id(),
@@ -123,9 +131,13 @@ class NewsController extends Controller
         }
 
         if ($news->title !== $validatedData['title']) {
-            $validatedData['slug'] = Str::slug($validatedData['title'], '-') . '-' . uniqid();
+            $titleForSlug = $validatedData['title'];
+            $baseSlug = Str::slug($titleForSlug, '-');
+            $maxBaseSlugLength = 230;
+            $limitedBaseSlug = Str::limit($baseSlug, $maxBaseSlugLength, '');
+            $validatedData['slug'] = $limitedBaseSlug . '-' . uniqid();
         } else {
-            $validatedData['slug'] = $news->slug;
+            unset($validatedData['slug']);
         }
 
         $news->update($validatedData);
